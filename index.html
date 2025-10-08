@@ -56,7 +56,7 @@
         .font-coding      { font-family: 'Nanum Gothic Coding', monospace !important; }
     </style>
 </head>
-<body>
+<body class="flex flex-col min-h-screen font-sans">
     <main class="flex-grow bg-white">
         <div class="bg-white font-sans font-semibold">
             <div class="container relative mx-auto w-[1072px]">
@@ -132,7 +132,14 @@
             </div>
         </div>
     </main>
-
+    <footer class="mt-8 text-center">
+        <div class="bg-gray-700 rounded-xl shadow-md p-3 border-2 border-gray-100">
+            <div class="flex justify-center">
+                <img src="/static/images/seongyun.png" alt="로고" class="w-32">
+            </div>
+            <p class="text-gray-500">© 2025 웹 일용할 양식</p>
+        </div>
+    </footer>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script defer src="/static/js/daily_bread.js"></script>
 </body>
