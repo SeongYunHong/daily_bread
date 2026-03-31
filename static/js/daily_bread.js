@@ -252,52 +252,95 @@ fontSelect.addEventListener('change', (e) => {
     if (cls) area.classList.add(cls);
 });
 
+// 화살표 자동 변환 함수
+function setupAutoArrow(editorId) {
+    const editor = document.getElementById(editorId);
+    if (!editor) return;
+
+    editor.addEventListener('input', (e) => {
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+
+        // 현재 커서가 위치한 텍스트 노드 확인
+        const textNode = range.startContainer;
+        if (textNode.nodeType !== Node.TEXT_NODE) return;
+
+        const content = textNode.textContent;
+        const cursorOffset = range.startOffset;
+
+        // 커서 바로 앞의 두 글자가 "->" 인지 확인
+        if (cursorOffset >= 2) {
+            const lastTwo = content.substring(cursorOffset - 2, cursorOffset);
+            if (lastTwo === '->') {
+                // 1) "->"를 "→"로 교체
+                const before = content.substring(0, cursorOffset - 2);
+                const after = content.substring(cursorOffset);
+                textNode.textContent = before + '→' + after;
+
+                // 2) 커서 위치 복구 (교체된 화살표 바로 뒤로)
+                const newRange = document.createRange();
+                newRange.setStart(textNode, cursorOffset - 1);
+                newRange.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+            }
+        }
+    });
+}
+
 window.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('saveBtn');
+    const btn = document.getElementById('saveBtn');
 
   btn.addEventListener('click', () => {
     // 1) 파일명 조합: #dateInput 과 오늘의 말씀(input[placeholder="오늘의 말씀"])
     const dateEl  = document.getElementById('dateInput');
     const bibleEl = document.querySelector("input[placeholder='오늘의 말씀']");
+    btn.addEventListener('click', () => {
+        // 1) 파일명 조합: #dateInput 과 오늘의 말씀(input[placeholder="오늘의 말씀"])
+        const dateEl  = document.getElementById('dateInput');
+        const bibleEl = document.querySelector("input[placeholder='오늘의 말씀']");
 
-    // fallback 처리
-    const dateVal  = dateEl.value.trim()  || getTodayString();
-    const bibleVal = bibleEl.value.trim() || '제목없음';
+        // fallback 처리
+        const dateVal  = dateEl.value.trim()  || getTodayString();
+        const bibleVal = bibleEl.value.trim() || '제목없음';
 
-    // 윈도우 파일명에 부적합한 문자 제거
-    const safe = str => str.replace(/[\\/:\*\?"<>\|]/g, '_');
+        // 윈도우 파일명에 부적합한 문자 제거
+        const safe = str => str.replace(/[\\/:\*\?"<>\|]/g, '_');
 
-    const filename = `${ safe(dateVal) }_${ safe(bibleVal) }.txt`;
+        const filename = `${ safe(dateVal) }_${ safe(bibleVal) }.txt`;
 
-    // 2) 텍스트 내용: 두 textarea 값
-    const memoEl   = document.querySelector("textarea[placeholder='개인 묵상']");
-    const titleEl = document.querySelector("input[placeholder='제목']")
-    const guideEl  = document.querySelector("textarea[placeholder='가이드 메세지']");
+        // 2) 텍스트 내용: 두 textarea 값
+        const memoEl   = document.querySelector("textarea[placeholder='개인 묵상']");
+        const titleEl = document.querySelector("input[placeholder='제목']")
+        const guideEl  = document.querySelector("textarea[placeholder='가이드 메세지']");
 
-    const memoText  = memoEl  ? memoEl.value  : '';
-    const titleText = titleEl ? titleEl.value : '';
-    const guideText = guideEl ? guideEl.value : '';
+        const memoText  = memoEl  ? memoEl.value  : '';
+        const titleText = titleEl ? titleEl.value : '';
+        const guideText = guideEl ? guideEl.value : '';
 
-    const content =
-      `[개인 묵상]\n${memoText}\n\n[가이드 메세지]\n${titleText}\n\n${guideText}`;
+        const content =
+          `[개인 묵상]\n${memoText}\n\n[가이드 메세지]\n${titleText}\n\n${guideText}`;
 
-    // 3) Blob 생성 → 다운로드 트리거
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  });
+        // 3) Blob 생성 → 다운로드 트리거
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
 
-  function getTodayString() {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,'0');
-    const dd= String(d.getDate()).padStart(2,'0');
-    return `${y}-${m}-${dd}`;
-  }
+    function getTodayString() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth()+1).padStart(2,'0');
+        const dd= String(d.getDate()).padStart(2,'0');
+        return `${y}-${m}-${dd}`;
+    }
+
+    setupAutoArrow('memoEditor');   // 개인 묵상 에디터
+    setupAutoArrow('guideEditor');  // 가이드 메시지 에디터
 });
