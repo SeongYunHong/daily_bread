@@ -291,10 +291,6 @@ function setupAutoArrow(editorId) {
 window.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('saveBtn');
 
-  btn.addEventListener('click', () => {
-    // 1) 파일명 조합: #dateInput 과 오늘의 말씀(input[placeholder="오늘의 말씀"])
-    const dateEl  = document.getElementById('dateInput');
-    const bibleEl = document.querySelector("input[placeholder='오늘의 말씀']");
     btn.addEventListener('click', () => {
         // 1) 파일명 조합: #dateInput 과 오늘의 말씀(input[placeholder="오늘의 말씀"])
         const dateEl  = document.getElementById('dateInput');
